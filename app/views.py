@@ -47,12 +47,7 @@ def flash_errors(form):
 @app.route('/')
 def home():
     """Render website's home page."""
-    return render_template('home.html')
-
-@app.route('/about/')
-def about():
-    """Render the website's about page."""
-    return render_template('about.html')
+    return render_template('home.html',active='home')
     
 @app.route('/profile', methods=["GET","POST"])
 def profile():
@@ -64,16 +59,13 @@ def profile():
             fname = form.firstname.data
             lname = form.lastname.data
             uname = form.username.data
-            #pword = form.password.data
             age = form.age.data
             bio = form.biography.data
             gender = form.gender.data
             file = form.profilePic.data 
             
             """Save data to database"""
-            #phash = hashlib.sha512(pword).hexdigest()
-            now = time.strftime("%d/%m/%Y")
-            user = UserProfile(id=uid,first_name=fname,last_name=lname,username=uname,age=age,gender=gender,bio=bio,created_on=now)
+            user = UserProfile(id=uid,first_name=fname,last_name=lname,username=uname,age=age,gender=gender,bio=bio)
             db.session.add(user)
             db.session.commit()
                 
@@ -81,38 +73,12 @@ def profile():
             upload(file,str(uid))
            
             flash("Profile created")
-            return redirect(url_for("home"))
+            return redirect(url_for("userprofile",userid=uid,active='profiles'))
         else:
             flash_errors(form)
-            return redirect(url_for("profile"))
+            return redirect(url_for("profile",active='profile'))
         
-    return render_template("profile.html", form=form)
-    
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    form = LoginForm()
-    if request.method == "POST" and form.validate_on_submit():
-        if form.username.data:
-            # Get the username and password values from the form.
-            u = form.username.data
-            p = form.password.data
-            phash = hashlib.sha512(p).hexdigest()
-            # using your model, query database for a user based on the username
-            # and password submitted
-            # store the result of that query to a `user` variable so it can be
-            # passed to the login_user() method.
-            user = UserProfile.query.filter_by(username=u, passwordhash=phash).first()
-            # get user id, load into session
-            if user is not None:
-                login_user(user)
-
-                # remember to flash a message to the user
-                flash("Login successful")
-                return redirect(url_for("secure_page")) # they should be redirected to a secure-page route instead
-            else:
-                flash('Username or Password is incorrect.', 'danger')
-
-    return render_template("login.html", form=form)
+    return render_template("profile.html", form=form, active='profile')
     
 @app.route("/profiles", methods=["GET","POST"])
 def profiles():
@@ -121,7 +87,7 @@ def profiles():
         for u in users:
             u.image = search(u.id)
             u.idstring = str(u.id)
-        return render_template("profiles.html",users=users)
+        return render_template("profiles.html",users=users, active='profiles')
     elif request.method == "POST":
         out = []
         if  "application/json" in request.headers['CONTENT-TYPE']:
@@ -137,7 +103,7 @@ def userprofile(userid):
     user = UserProfile.query.get(userid)
     img = search(userid)
     if request.method == "GET":
-        return render_template("user.html",user=user,img=img)
+        return render_template("user.html",user=user,img=img, active='profiles')
         
     elif request.method == "POST":
         if  "application/json" in request.headers['CONTENT-TYPE']:

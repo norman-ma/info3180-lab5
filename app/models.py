@@ -8,7 +8,7 @@ class UserProfile(db.Model):
     age = db.Column(db.Integer)
     gender = db.Column(db.String(10))
     bio = db.Column(db.Text)
-    created_on = db.Column(db.DateTime)
+    created_on = db.Column(db.DateTime, default=db.func.now(), nullable=False)
     
 
     def is_authenticated(self):

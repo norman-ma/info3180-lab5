@@ -11,16 +11,20 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="{{ url_for('home') }}">Home</a></li>
-            <li><a href="{{ url_for('profile') }}">Create Profile</a></li>
-            <li><a href="{{ url_for('profiles') }}">Profiles</a></li>
-          </ul>
-
-          <ul class="nav navbar-nav navbar-right">
-            {% if current_user.is_authenticated %}
-              <li class="active"><a href="{{ url_for('logout') }}">Logout</a></li>
+            {% if active == 'home' %}
+              <li class="active"><a href="{{ url_for('home') }}">Home</a></li>
             {% else %}
-              <li class="active"><a href="{{ url_for('login') }}">Login</a></li>
+              <li><a href="{{ url_for('home') }}">Home</a></li>
+            {% endif %}
+            {% if active == 'profile' %}
+              <li class="active"><a href="{{ url_for('profile') }}">Create Profile</a></li>
+            {% else %}
+              <li><a href="{{ url_for('profile') }}">Create Profile</a></li>
+            {% endif %}
+            {% if active == 'profiles' %}
+              <li class="active"><a href="{{ url_for('profiles') }}">Profiles</a></li>
+            {% else %}
+              <li><a href="{{ url_for('profiles') }}">Profiles</a></li>
             {% endif %}
           </ul>
         </div><!--/.nav-collapse -->

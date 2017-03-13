@@ -5,13 +5,18 @@ img{
 .list li{
     list-style-type: none;
     font-size: 20px;
-    color: #333;
+    padding-top: 10px;
 }
 
 a{
     text-decoration: none;
+    color: #333;
+   
 }
 
 a:hover{
+    text-decoration: none;
     color: #4D4E4D;
+    font-weight: bold;
+    font-style: normal;
 }
