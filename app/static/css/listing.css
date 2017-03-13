@@ -1,0 +1,17 @@
+img{
+    height:50px;
+}
+
+.list li{
+    list-style-type: none;
+    font-size: 20px;
+    color: #333;
+}
+
+a{
+    text-decoration: none;
+}
+
+a:hover{
+    color: #4D4E4D;
+}

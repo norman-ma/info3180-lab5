@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block css %} 
+<link href="/static/css/userstyles.css" rel="stylesheet">
+{% endblock %}
+{% block main %}
+<h1 class="page-header">Profile</h1>
+ {% include 'flash_messages.html' %}
+<img src="{{ url_for('static', filename='uploads/'+img) }}"/>
+<div id='info'>
+    <div id = 'name'>  
+        <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+    </div>
+    <div>
+        <div id='date_created'>
+            Profile created on {{ user["created_on"] }}
+        </div>
+        <div id = 'userinfo'>
+            <span>Username:</span>{{ user.username }}<br/>
+            <span>User ID:</span>{{ user.id }} <br/>
+            <span>Age:</span> {{ user.age }}<br/>
+            <span>Gender:</span> {{ user.gender }} 
+        </div>
+        <div id = 'bio'>
+            {{ user.bio }}
+        </div>    
+    </div>
+</div>
+{% endblock %}

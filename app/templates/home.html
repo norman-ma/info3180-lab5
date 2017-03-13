@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
+{% block css %} 
+<link rel = 'stylesheet' href = 'static/css/home.css' type = 'text/css'>
+{% endblock%}
+
 {% block main %}
-<h1 class="page-header">Lab 5 Starter Code</h1>
-<p class="lead">Use this starter template for Lab 5<br/>
-All you get are these files and mostly barebones HTML/CSS files.</p>
+<img src="{{ url_for('static',filename='resources/bg.jpg') }}" id='bg'>
+<img src="{{ url_for('static',filename='resources/logo.png') }}" id='logo'>
 {% endblock %}

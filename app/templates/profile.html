@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block css %} 
+<link rel = 'stylesheet' href = 'static/css/form.css' type = 'text/css'>
+{% endblock%}
+
+{% block main %}
+<div class = 'container'>
+    <h2> Create Profile </h2>
+    
+    <h4> Fill in this form to create a profile</h4>
+    
+     {% include 'flash_messages.html' %}
+        
+    <form action = "{{ url_for('profile') }}" method = 'post' enctype="multipart/form-data">
+        {{ form.csrf_token }}
+        
+        <label for = 'profilePic'>Profile Picture <span class = 'required'>[Required]</span></label><br/>
+        {{ form.profilePic() }}<br/><br/>
+    
+        <label for = 'firstname'>First Name <span class = 'required'>[Required]</span></label><br/>
+        <span class = 'note'>Please enter your first name</span><br/>
+        {{ form.firstname(size = 40) }}<br/><br/>
+        
+        <label for = 'lastname'>Last Name <span class = 'required'>[Required]</span></label><br/>
+        <span class = 'note'>Please enter your last name</span><br/>
+        {{ form.lastname(size = 40) }}<br/><br/>
+        
+        <label for = 'username'>Username <span class = 'required'>[Required]</span></label><br/>
+        <span class = 'note'>Please enter your username.</span><br/>
+        {{ form.username(size = 40) }}<br/><br/>
+        
+        <label for = 'age'>Age <span class = 'required'>[Required]</span></label><br/>
+        <span class = 'note'>Please enter your age</span><br/>
+        {{ form.age() }}<br/><br/>
+        
+        <label for = 'gender'>Gender <span class = 'required'>[Required]</span></label><br/>
+        <span class = 'note'>Please select your gender.</span><br/>
+        {{ form.gender() }}<br/><br/>
+        
+        <label for = 'bio'>Biography <span class = 'required'>[Required]</span></label><br/>
+        <span class = 'note'>Share a little bit about yourself</span><br/>
+        {{ form.biography(rows = 6, cols = 50) }}<br/><br/>
+        
+        <button type='submit' class='btn btn-primary'>Submit</button>
+    </form>
+</div>
+{% endblock %}

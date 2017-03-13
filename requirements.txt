@@ -7,6 +7,12 @@ Flask-SQLAlchemy
 Flask-Migrate
 Flask-Login
 psycopg2
+Jinja2
+MarkupSafe
+Werkzeug
+click
+itsdangerous
+wsgiref
 
 # ----------------------
 # Production Server

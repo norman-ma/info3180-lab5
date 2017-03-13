@@ -4,12 +4,40 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-
+import os.path
+import hashlib
+import uuid
+import time
 from app import app, db, login_manager
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, json
 from flask_login import login_user, logout_user, current_user, login_required
-from forms import LoginForm
+from forms import LoginForm, SignUpForm
 from models import UserProfile
+from werkzeug.utils import secure_filename
+
+
+def upload(file,userid):
+    file_folder = app.config['UPLOAD_FOLDER']
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(file_folder, filename))
+    ext = os.path.splitext(file_folder+filename)[1]
+    os.rename(file_folder+"/"+filename, file_folder+"/"+userid+ext)
+
+def search(userid):
+    rootdir = app.config['UPLOAD_FOLDER']
+    for subdir, dirs, files in os.walk(rootdir):
+        for name in files:
+            if str(userid) in name:
+                 return name
+    return None
+   
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field - %s" % (
+                getattr(form, field).label.text,
+                error
+            ))
 
 
 ###
@@ -25,22 +53,55 @@ def home():
 def about():
     """Render the website's about page."""
     return render_template('about.html')
-
+    
+@app.route('/profile', methods=["GET","POST"])
+def profile():
+    form = SignUpForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            """Get data from form"""
+            uid = int(uuid.uuid4().int & (1<<16)-1)
+            fname = form.firstname.data
+            lname = form.lastname.data
+            uname = form.username.data
+            #pword = form.password.data
+            age = form.age.data
+            bio = form.biography.data
+            gender = form.gender.data
+            file = form.profilePic.data 
+            
+            """Save data to database"""
+            #phash = hashlib.sha512(pword).hexdigest()
+            now = time.strftime("%d/%m/%Y")
+            user = UserProfile(id=uid,first_name=fname,last_name=lname,username=uname,age=age,gender=gender,bio=bio,created_on=now)
+            db.session.add(user)
+            db.session.commit()
+                
+            """upload profile picture"""
+            upload(file,str(uid))
+           
+            flash("Profile created")
+            return redirect(url_for("home"))
+        else:
+            flash_errors(form)
+            return redirect(url_for("profile"))
+        
+    return render_template("profile.html", form=form)
+    
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if request.method == "POST" and form.validate_on_submit():
-        # change this to actually validate the entire form submission
-        # and not just one field
         if form.username.data:
             # Get the username and password values from the form.
             u = form.username.data
             p = form.password.data
+            phash = hashlib.sha512(p).hexdigest()
             # using your model, query database for a user based on the username
             # and password submitted
             # store the result of that query to a `user` variable so it can be
             # passed to the login_user() method.
-            user = UserProfile.query.filter_by(username=u, password=p).first()
+            user = UserProfile.query.filter_by(username=u, passwordhash=phash).first()
             # get user id, load into session
             if user is not None:
                 login_user(user)
@@ -52,15 +113,35 @@ def login():
                 flash('Username or Password is incorrect.', 'danger')
 
     return render_template("login.html", form=form)
+    
+@app.route("/profiles", methods=["GET","POST"])
+def profiles():
+    users = UserProfile.query.all()
+    if request.method == "GET":
+        for u in users:
+            u.image = search(u.id)
+            u.idstring = str(u.id)
+        return render_template("profiles.html",users=users)
+    elif request.method == "POST":
+        out = []
+        if  "application/json" in request.headers['CONTENT-TYPE']:
+            for u in users:
+                user = {"userid":u.id,"username":u.username}
+                out.append(user)
+            return json.jsonify(out)
+    
 
-@app.route("/secure-page")
-@login_required
-def secure_page():
-    if not current_user.is_authenticated:
-        flash("Please log in to continue")
-        return redirect(url_for("login.html"))
-    else:
-        return render_template("secure-page.html")
+@app.route("/profile/<userid>", methods=["GET","POST"])
+def userprofile(userid):
+    
+    user = UserProfile.query.get(userid)
+    img = search(userid)
+    if request.method == "GET":
+        return render_template("user.html",user=user,img=img)
+        
+    elif request.method == "POST":
+        if  "application/json" in request.headers['CONTENT-TYPE']:
+            return json.jsonify(userid=user.id, username=user.username, image=img, gender=user.gender, age= user.age, profile_created_on=user.created_on)
         
 @app.route("/logout")
 @login_required
